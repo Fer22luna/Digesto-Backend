@@ -2,27 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace Backend.Entities;
 
-public class StateTransition
-{
-    [JsonPropertyName("from_state")]
-    public string? FromState { get; set; }
-    
-    [JsonPropertyName("to_state")]
-    public string ToState { get; set; } = string.Empty;
-    
-    [JsonPropertyName("timestamp")]
-    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-    
-    [JsonPropertyName("user_id")]
-    public string UserId { get; set; } = "system";
-    
-    [JsonPropertyName("user_role")]
-    public string UserRole { get; set; } = "ADMIN";
-    
-    [JsonPropertyName("notes")]
-    public string? Notes { get; set; }
-}
-
 public class Regulation
 {
     [JsonPropertyName("id")]
@@ -57,9 +36,6 @@ public class Regulation
     
     [JsonPropertyName("pdf_url")]
     public string? PdfUrl { get; set; }
-    
-    [JsonPropertyName("state_history")]
-    public List<StateTransition>? StateHistory { get; set; } = new();
     
     [JsonPropertyName("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

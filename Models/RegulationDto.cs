@@ -61,13 +61,28 @@ public class CreateRegulationDto
 
 public class UpdateRegulationDto
 {
+    [JsonPropertyName("specialNumber")]
     public string? SpecialNumber { get; set; }
+    
+    [JsonPropertyName("reference")]
     public string? Reference { get; set; }
+    
+    [JsonPropertyName("type")]
     public string? Type { get; set; }
+    
+    [JsonPropertyName("state")]
     public string? State { get; set; }
+    
+    [JsonPropertyName("legalStatus")]
     public string? LegalStatus { get; set; }
+    
+    [JsonPropertyName("content")]
     public string? Content { get; set; }
+    
+    [JsonPropertyName("keywords")]
     public List<string>? Keywords { get; set; }
+    
+    [JsonPropertyName("publicationDate")]
     public DateTime? PublicationDate { get; set; }
 }
 

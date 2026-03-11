@@ -188,10 +188,15 @@ public class RegulationService : IRegulationService
     {
         try
         {
+            _logger.LogInformation($"[UPDATE] ID recibido: '{id}' (length: {id?.Length})");
+            
             var existing = await _supabase.QueryAsync<Regulation>(TABLE_NAME, $"id=eq.{id}");
+            
+            _logger.LogInformation($"[UPDATE] Regulation encontrada: {(existing != null ? "SÍ" : "NO")}");
             
             if (existing == null)
             {
+                _logger.LogWarning($"[UPDATE] Normativa no encontrada para ID: {id}");
                 return new ApiResponse<RegulationDto>
                 {
                     Success = false,
@@ -199,8 +204,10 @@ public class RegulationService : IRegulationService
                 };
             }
 
+            // Crear el objeto actualizado con todos los campos
             var updated = new Regulation
             {
+                Id = existing.Id,
                 SpecialNumber = dto.SpecialNumber ?? existing.SpecialNumber,
                 Reference = dto.Reference ?? existing.Reference,
                 Type = dto.Type ?? existing.Type,
@@ -209,13 +216,21 @@ public class RegulationService : IRegulationService
                 Content = dto.Content ?? existing.Content,
                 Keywords = dto.Keywords ?? existing.Keywords,
                 PublicationDate = dto.PublicationDate ?? existing.PublicationDate,
+                FileUrl = existing.FileUrl,
+                PdfUrl = existing.PdfUrl,
+                CreatedAt = existing.CreatedAt,
                 UpdatedAt = DateTime.UtcNow
             };
 
+            _logger.LogInformation("[UPDATE] Regulation a actualizar: {regulation}", JsonSerializer.Serialize(updated, new JsonSerializerOptions { WriteIndented = false }));
+
             var success = await _supabase.UpdateAsync(TABLE_NAME, id, updated);
+            
+            _logger.LogInformation($"[UPDATE] Resultado Supabase: {success}");
             
             if (!success)
             {
+                _logger.LogError($"[UPDATE] Error al actualizar en Supabase para ID: {id}");
                 return new ApiResponse<RegulationDto>
                 {
                     Success = false,
@@ -232,7 +247,7 @@ public class RegulationService : IRegulationService
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error updating regulation: {ex.Message}");
+            _logger.LogError($"Error updating regulation with ID '{id}': {ex.Message}\n{ex.StackTrace}");
             return new ApiResponse<RegulationDto>
             {
                 Success = false,

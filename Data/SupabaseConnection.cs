@@ -33,6 +33,9 @@ public class SupabaseConnection
             if (!string.IsNullOrEmpty(filter))
                 url += $"?{filter}";
 
+            _logger.LogInformation($"[SUPABASE-QUERY] URL: {url}");
+            _logger.LogInformation($"[SUPABASE-QUERY] Filter: {filter ?? "none"}");
+            
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Add("apikey", _supabaseKey);
             request.Headers.Add("Authorization", $"Bearer {_supabaseKey}");
@@ -41,16 +44,17 @@ public class SupabaseConnection
             
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError($"Supabase error: {response.StatusCode}");
+                _logger.LogError($"[SUPABASE-QUERY] Error: {response.StatusCode}");
                 return null;
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation($"QueryAsync response (length: {content.Length}): {content}");
+            _logger.LogInformation($"[SUPABASE-QUERY] Response (length: {content.Length}): {content}");
             
             // Handle empty response
             if (string.IsNullOrWhiteSpace(content) || content == "[]")
             {
+                _logger.LogWarning($"[SUPABASE-QUERY] Empty response from Supabase");
                 return null;
             }
             
@@ -170,7 +174,12 @@ public class SupabaseConnection
         try
         {
             var url = $"{_supabaseUrl}/rest/v1/{table}?id=eq.{id}";
+            _logger.LogInformation($"[SUPABASE-UPDATE] URL: {url}");
+            _logger.LogInformation($"[SUPABASE-UPDATE] ID a buscar: '{id}'");
+            
             var json = JsonSerializer.Serialize(entity, _jsonOptions);
+            _logger.LogInformation($"[SUPABASE-UPDATE] JSON a enviar: {json}");
+            
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
             var request = new HttpRequestMessage(HttpMethod.Patch, url)
@@ -182,11 +191,22 @@ public class SupabaseConnection
             request.Headers.Add("Prefer", "return=representation");
 
             var response = await _httpClient.SendAsync(request);
+            
+            var responseContent = await response.Content.ReadAsStringAsync();
+            
+            _logger.LogInformation($"[SUPABASE-UPDATE] Status Code: {response.StatusCode}");
+            _logger.LogInformation($"[SUPABASE-UPDATE] Response: {responseContent}");
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError($"[SUPABASE-UPDATE] Error! Status: {response.StatusCode}, Content: {responseContent}");
+            }
+            
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Supabase update error: {ex.Message}");
+            _logger.LogError($"[SUPABASE-UPDATE] Exception: {ex.Message}\n{ex.StackTrace}");
             return false;
         }
     }
