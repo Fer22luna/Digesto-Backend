@@ -30,8 +30,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
 // Add Supabase connection
-var supabaseUrl = builder.Configuration["Supabase:Url"] ?? "https://your-supabase-url.supabase.co";
-var supabaseKey = builder.Configuration["Supabase:AnonKey"] ?? "your-anon-key";
+var supabaseUrl = builder.Configuration["Supabase:Url"] ?? "https://ltpvyxrpmijkvrtyfpuh.supabase.co";
+var supabaseKey = builder.Configuration["Supabase:AnonKey"] ?? "sb_publishable_BNuG6HJpkP2FuWTmXRwVhg_1AzywTG8";
 
 builder.Services.AddScoped(sp => 
 {
@@ -57,6 +57,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 app.UseAuthorization();
+app.UseStaticFiles(); 
 app.MapControllers();
 
 app.Run();
