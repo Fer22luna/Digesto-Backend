@@ -42,6 +42,7 @@ builder.Services.AddScoped(sp =>
 
 // Add services with dependency injection
 builder.Services.AddScoped<IRegulationService, RegulationService>();
+builder.Services.AddScoped<IRegulationStateTransitionService, RegulationStateTransitionService>();
 builder.Services.AddScoped<IUploadService, UploadService>();
 
 var app = builder.Build();

@@ -9,12 +9,17 @@ public class RegulationService : IRegulationService
 {
     private readonly SupabaseConnection _supabase;
     private readonly ILogger<RegulationService> _logger;
+    private readonly IRegulationStateTransitionService _stateTransitionService;
     private const string TABLE_NAME = "regulations";
 
-    public RegulationService(SupabaseConnection supabase, ILogger<RegulationService> logger)
+    public RegulationService(
+        SupabaseConnection supabase, 
+        ILogger<RegulationService> logger,
+        IRegulationStateTransitionService stateTransitionService)
     {
         _supabase = supabase;
         _logger = logger;
+        _stateTransitionService = stateTransitionService;
     }
 
     public async Task<ApiResponse<List<RegulationDto>>> GetAllRegulationsAsync()
@@ -236,6 +241,32 @@ public class RegulationService : IRegulationService
                     Success = false,
                     Message = "Error al actualizar la normativa"
                 };
+            }
+
+            // Record state transition if state changed
+            if (!string.IsNullOrEmpty(dto.State) && dto.State != existing.State)
+            {
+                var transitionDto = new CreateStateTransitionDto
+                {
+                    RegulationId = id,
+                    FromState = existing.State,
+                    ToState = dto.State,
+                    UserId = "system", // TODO: Get from authentication context
+                    UserRole = "ADMIN", // TODO: Get from authentication context
+                    Notes = null
+                };
+
+                var transitionResult = await _stateTransitionService.RecordTransitionAsync(transitionDto);
+                
+                if (!transitionResult.Success)
+                {
+                    _logger.LogWarning($"[UPDATE] Failed to record state transition for regulation {id}");
+                    // Don't fail the update if transition recording fails, but log it
+                }
+                else
+                {
+                    _logger.LogInformation($"[UPDATE] State transition recorded: {existing.State} -> {dto.State}");
+                }
             }
 
             return new ApiResponse<RegulationDto>

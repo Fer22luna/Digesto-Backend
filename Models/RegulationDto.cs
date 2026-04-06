@@ -86,6 +86,54 @@ public class UpdateRegulationDto
     public DateTime? PublicationDate { get; set; }
 }
 
+public class RegulationStateTransitionDto
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+    
+    [JsonPropertyName("regulation_id")]
+    public string RegulationId { get; set; } = string.Empty;
+    
+    [JsonPropertyName("from_state")]
+    public string? FromState { get; set; }
+    
+    [JsonPropertyName("to_state")]
+    public string ToState { get; set; } = string.Empty;
+    
+    [JsonPropertyName("timestamp")]
+    public DateTime Timestamp { get; set; }
+    
+    [JsonPropertyName("user_id")]
+    public string UserId { get; set; } = string.Empty;
+    
+    [JsonPropertyName("user_role")]
+    public string UserRole { get; set; } = string.Empty;
+    
+    [JsonPropertyName("notes")]
+    public string? Notes { get; set; }
+}
+
+public class CreateStateTransitionDto
+{
+    [JsonPropertyName("regulation_id")]
+    public string RegulationId { get; set; } = string.Empty;
+    
+    [JsonPropertyName("from_state")]
+    public string? FromState { get; set; }
+    
+    [JsonPropertyName("to_state")]
+    public string ToState { get; set; } = string.Empty;
+    
+    [JsonPropertyName("user_id")]
+    public string UserId { get; set; } = "system";
+    
+    [JsonPropertyName("user_role")]
+    public string UserRole { get; set; } = "ADMIN";
+    
+    [JsonPropertyName("notes")]
+    public string? Notes { get; set; }
+}
+
 public class ApiResponse<T>
 {
     public bool Success { get; set; } = true;
